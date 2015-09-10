@@ -1,0 +1,305 @@
+div,ul,li{margin:0; padding:0;}
+
+#dialog input{
+    border-style:solid;
+    border-color:#ccc;
+    border-width:0 1px 1px 1px;
+}
+
+#dialog input:first-of-type{
+    border-top-width:1px;
+}
+
+#error.ui-state-error{
+    margin:5px 0;
+    padding:5px;
+}
+
+body{
+    background:#eee;
+    height:100%;
+    margin:0;
+    font-family:'Open Sans',sans-serif;
+}
+
+.no-close .ui-dialog-titlebar-close{
+    display:none;
+}
+
+.chatMessage{
+    margin:5px;
+    border-bottom:1px solid #ccc;
+}
+
+input[type='text'], input[type='number']{
+    background:#fff;
+    border:1px solid #ccc;
+    padding:4px;
+}
+
+#colorPicker #skip{
+    background:#ff3500;
+    color:white;
+    padding:6px;
+}
+
+#colorPicker #hint{
+    background:#ffb800;
+    padding:6px;
+}
+
+button{
+    background:none;
+    padding:4px;
+    border:none;
+}
+
+#toSend{
+    border:none;
+}
+
+.shadow{
+    box-shadow:0 0 2px 0 #777;
+}
+
+.ui-slider-handle{
+    border:1px solid #ccc !important;
+}
+
+button:hover, button:focus{
+    background:#eee;
+    cursor:pointer;
+    box-shadow:0 0 2px 0 #777;
+}
+
+button:active{
+    box-shadow:0 0 6px 0 #777;
+}
+
+li{
+    list-style:none;
+}
+
+.canvas {
+    width:calc(100% - 440px);
+    height:calc(100% - 20px);
+    float:right;
+    background:white;
+    margin:10px;
+}
+
+.button {
+    border: 3px solid #0088cc;
+    border-radius: 18px;
+    padding: 2px;
+}
+
+.button:hover, .button.hover{
+    background:#88ccee;
+    cursor:pointer;
+}
+
+#loader 
+{ fill: #0088cc }
+
+#border 
+{ fill: #00517a }
+
+.drawBar{
+    margin:0 10px;
+    border-bottom:1px solid #ccc;
+    padding:10px 0;
+}
+
+#word{
+    max-height:0;
+    text-align:center;
+}
+
+.drawBar svg{
+    margin:2px;
+}
+
+canvas{
+    background:white;
+    margin:10px 0;
+    cursor:default;
+}
+
+#toolbar {
+    margin: 10px;
+    border-bottom:1px solid #ccc;
+    width: calc(100% - 16px);
+    background:none;
+    min-height:30px;
+    position:absolute;
+    z-index:1;
+}
+
+#backButtonContainer{
+    float:left;
+}
+
+#forwardButtonContainer{
+    float:right;
+}
+
+#title {
+    max-height: 0;
+    text-align: center;
+}
+
+#content{
+    position:absolute;
+    top:46px;
+    z-index:0;
+    width:100%;
+    height:calc(100% - 46px);
+}
+
+.corridor{
+    width:100%;
+    height:100%
+}
+
+#rooms{
+    width:calc(100% - 430px);
+    float:right;
+    height:calc(100% - 20px);
+    padding:10px 10px 10px 0;
+}
+
+#rooms .roomElem{
+    display:inline-block;
+    margin: 0 10px 10px 0;
+    min-width: 100px;
+    padding: 5px;
+    background:white;
+    cursor:pointer;
+}
+
+#rooms .roomElem:hover{
+    background:#eee;
+}
+
+.roomName{
+    float:left;
+}
+
+.roomUsers{
+    float:right;
+}
+
+.chatContainer{
+    height:calc(100% - 200px);
+}
+
+.room{
+    height:100%;
+}
+
+.chat{
+    height:calc(100% - 20px);
+    background:white;
+}
+
+.corridor .chat{
+    width:400px;
+    float:left;
+    margin:10px;
+}
+
+#toolPicker{
+    float:left;
+    width:20%;
+}
+
+#colorPicker{
+    float:right;
+}
+
+#sliderBar{
+    margin-top:8px;
+    width:40%;
+    float:left;
+}
+
+.sliderDesc{
+    float:left;
+    width:100px;
+    text-align:right;
+    padding:5px 10px 0 0;
+}
+
+.room .chat{
+    width:400px;
+    float:left;
+    margin:10px;
+}
+
+.chat #chatMessages{
+    background-color:white;
+    border-bottom:1px solid #ccc;
+    overflow-y:scroll;
+}
+
+.corridor .chat #chatMessages{
+    min-height:500px;
+}
+
+.users{
+    min-height:200px;
+    max-height:200px;
+    overflow-y:scroll;
+    background:white;
+    border-bottom:1px solid #ccc;
+}
+
+.users li{
+    list-style:none;
+    padding:0;
+}
+
+.users .user{
+    float:left;
+}
+
+.users .score{
+    float:right;
+}
+
+.users li.presentator .user::before{
+    content:"\21D2 "
+}
+
+.users li.presentator{
+    color:green;
+}
+
+#round{
+    float:right;
+    margin:8px 5px 0 0;
+}
+
+#pieTimer{
+    float:left;
+}
+
+.room .chat #chatMessages{
+    height:calc(100% - 230px);
+}
+
+.corridor .chat input{
+    width:400px;
+}
+
+.clearBoth{
+    clear:both;
+}
+
+#cursorStalker{
+    position:absolute;
+    top:0px;
+    left:0px;
+    pointer-events:none;
+}
