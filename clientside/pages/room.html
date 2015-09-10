@@ -1,0 +1,47 @@
+<div class="room">
+  <div class="canvas shadow">
+    <div class="drawBar">
+      <div id="word">&nbsp;</div>
+      <div id="round"></div>
+      <svg id="pieTimer" width="36" height="36" viewbox="0 0 36 36">
+	<path id="border" transform="translate(18, 18)"/>
+	<path id="loader" transform="translate(18, 18) scale(.9)"/>
+      </svg>
+      <br class="clearBoth"/>
+    </div>
+    <div class="drawBar">
+      <div id="toolPicker">
+	<img class="button" alt="erase" src="images/erase.png"/>
+	<img class="button" alt="bucket" src="images/bucket.png"/>
+	<img class="button" alt="pencil" src="images/pencil.png"/>
+	<img class="button" alt="square" src="images/square.png"/>
+	<img class="button" alt="circle" src="images/circle.png"/>
+	<img class="button" alt="trash" src="images/trash.png"/>	
+      </div>
+      <div class="sliderDesc">&nbsp;<span id="sliderDesc"></span><span id="sliderVal"></span></div>
+      <div id="sliderBar"></div>
+      <div id="colorPicker">
+	<button id="skip" style="display:none;">Skip</button>
+	<button id="hint" style="display:none;">Hint</button>
+	<input type="text" id="colorPickerInput"/>
+      </div>
+      <br class="clearBoth"/>
+    </div>
+    <canvas id="drawboard" oncontextmenu="return false;"></canvas>
+  </div>
+  <div class="chat shadow">
+    <div class="users">
+      <ul id="usersList">
+      </ul>
+    </div>
+    <div class="chatContainer">
+      <div id="chatMessages">
+      </div>
+      <input type="text" id="toSend"  autofocus="autofocus"/><button id="send">Send</button>
+    </div>
+  </div>
+  <br class="clearBoth" />
+</div>
+<svg height="100" width="100" id="cursorStalker">
+  <circle cx="50" cy="50" r="47" stroke="#0088cc" stroke-width="1" fill="none"/>
+</svg>

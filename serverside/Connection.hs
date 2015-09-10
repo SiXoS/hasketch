@@ -67,4 +67,4 @@ main :: IO ()
 main = do 
   state <- newMVar emptyServerState
   corr <- newMVar S.emptyCorridor
-  WS.runServer "192.168.1.142" 8181 $ application state corr
+  WS.runServer "0.0.0.0" 8181 $ application state corr
