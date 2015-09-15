@@ -15,3 +15,4 @@ cabal.sandbox.config
 *.aux
 *.hp
 serverside/dist/
+serverside/5sketch
