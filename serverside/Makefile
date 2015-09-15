@@ -5,7 +5,7 @@ set-up:
 	cabal sandbox init
 
 clean:
-	cabal delete sandbox
+	cabal sandbox delete
 	rm -r dist
 
 run: 
