@@ -124,6 +124,7 @@ setNewPresentator rm force now
     newPres = M.keys (score rm') !! newPresI
 
 data WelcomeResponse = FullRoom | WrongPass | PresentatorChange Room | Norm Room 
+  deriving (Show)
 
 welcome :: Int -> Maybe String -> Room -> WelcomeResponse
 welcome uid pass rm
