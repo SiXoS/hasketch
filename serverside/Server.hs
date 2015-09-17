@@ -159,6 +159,9 @@ leaveCorridor usr corr = (corr{users = M.delete usr (users corr)},[(Sender,JS.ac
 createRoom :: Int -> JS.CreateRoom -> [String] -> ServerErr Value
 createRoom uid (JS.CreateRoom nme timer maxUsr finTimer pass maxRounds wordList) wrds corr 
   | roomExists = Bad "Room name already exists"
+  | timer > 600 || finTimer > 600 = Bad "The timer can be no longer than 600 seconds."
+  | maxUsr > 50 = Bad "The maximum number of users can be no more than 50"
+  | maxRounds > 50 = Bad "The number of rounds can be no more than 50." 
   | otherwise = Ok (corr{rooms = M.insert nme room (rooms corr),inCorridor = corridorers}
                    ,[(Sender,JS.ack "createRoom"),(All $ S.toList corridorers, JS.withData "newRoom" roomSum)])
   where
