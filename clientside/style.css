@@ -244,7 +244,7 @@ canvas{
 }
 
 .corridor .chat #chatMessages{
-    min-height:500px;
+    min-height:300px;
 }
 
 .users{
