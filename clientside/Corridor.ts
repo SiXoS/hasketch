@@ -7,6 +7,7 @@ class Corridor implements PageLoader{
     private roomList : JQuery;
     private joinedRoom;
     private chat : JQuery;
+    private filterOpts = {showFull: true, showEmpty: true, search: ""}
 
     getTitle(){return "Corridor";}
     getBackButton(){
@@ -31,7 +32,7 @@ class Corridor implements PageLoader{
 	    if(data.error && data.cmd != "setName" && data.cmd != "createRoom"){
 		self.chat.append(data.error + "<br/>");
             }else if(data.cmd == "enterCorridor"){
-                self.roomList.html("");
+                
                 for(var i = 0; i < data.data.length ; i++){
                     self.addRoom(<RoomElement>data.data[i]);
                 }
@@ -89,6 +90,14 @@ class Corridor implements PageLoader{
 	this.chat.css("height","calc(100% - " + height + "px)");
 	toSendInput.width($(".chat").innerWidth()-$("#send").outerWidth()-10); //10 = padding + border
 	var self = this;
+        $("#searchField").keydown(function(e){ 
+            if(e.which == 13){
+                e.preventDefault();
+                e.stopPropagation()
+                $("#searchBox").click();
+            } 
+        });
+        $("#filterBar button").click(function(){ self.filterClick($(this)); });
 	$("#toSend").keydown(function(e){
 	    if(e.which == 13){
 		if(toSendInput.val().length > 0){
@@ -98,6 +107,33 @@ class Corridor implements PageLoader{
 		}
 	    }
 	});
+    }
+
+    filterClick(button : JQuery) : void{
+       if(button.attr("id") == "searchBox"){
+           this.filterOpts.search = $("#searchField").val();
+       }else if(button.attr("id") == "filterEmpty"){
+           button.toggleClass("active");
+           this.filterOpts.showEmpty = button.hasClass("active");
+       }else if(button.attr("id") == "filterFull"){
+           button.toggleClass("active");
+           this.filterOpts.showFull = button.hasClass("active");
+       }
+
+       this.filter();
+    }
+
+    filter() : void{
+       var rooms = $(".roomElem");
+       rooms.css("display","none");
+       var fltr = this.filterOpts;
+       rooms.filter(function(i,elem){
+	  var qelem = $(elem);
+          var users = qelem.find(".roomUsers").html().split("/");
+          return (fltr.search.length == 0 || qelem.find(".roomName").html().search(fltr.search) >= 0) &&
+                 (fltr.showEmpty || users[0] != "0") &&
+                 (fltr.showFull || users[0] < users[1]);
+       }).css("display","");
     }
 
     getUrl(){
