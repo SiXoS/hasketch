@@ -1,3 +1,4 @@
+
 div,ul,li{margin:0; padding:0;}
 
 #dialog input{
@@ -169,6 +170,37 @@ canvas{
     padding:10px 10px 10px 0;
 }
 
+#rooms #filterBar{
+    width:100%;
+    margin-bottom:10px;
+}
+
+#rooms #filterBar *:not(:last-child){
+    border-right:#ddd 1px solid !important;
+}
+
+#rooms #filterBar #searchField{
+    width:calc(100% - 320px);
+    padding:5px;
+    border:none;
+}
+
+#rooms #filterBar #searchBox{
+    padding:5px;
+    width:100px;
+    background:white;
+}
+
+#rooms #filterBar .toggleButton{
+    background:white;
+    padding:5px;
+    width:100px;
+}
+
+#rooms #filterBar .toggleButton.active{
+    background:#36b825;
+}
+
 #rooms .roomElem{
     display:inline-block;
     margin: 0 10px 10px 0;
@@ -187,6 +219,7 @@ canvas{
 }
 
 .roomUsers{
+    padding-left:10px;
     float:right;
 }
 
