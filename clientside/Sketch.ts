@@ -82,6 +82,7 @@ function loadDialog(dialog : string, arg? : any){
 		dialogClass:diaClass,
 		width:"750px"
 	    });
+            dialogContainer.find("input[autofocus]").focus();
 	}
     })
 }
@@ -113,6 +114,7 @@ function loadPage(page : string, arg? : any){
         success:function(html){
             content.html(html);
 	    connectListeners();
+            $("input[autofocus]").focus();
 	    $("#title").html(loader.getTitle());
 	    bButton.html("");
 	    fButton.html("");

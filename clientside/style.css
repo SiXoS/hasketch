@@ -127,10 +127,10 @@ canvas{
 }
 
 #toolbar {
-    margin: 10px;
-    border-bottom:1px solid #ccc;
-    width: calc(100% - 16px);
-    background:none;
+    padding: 10px 10px 0 10px;
+    margin-bottom:10px;
+    width: calc(100% - 20px);
+    background:#0088cc;
     min-height:30px;
     position:absolute;
     z-index:1;

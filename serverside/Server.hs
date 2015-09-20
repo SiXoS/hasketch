@@ -213,9 +213,11 @@ newPresentator uid rm now skip corr
     R.GameEnd -> Ok (corr',[(All (pres:vstrs), JS.ack "gameOver")])
     _         -> Ok (corr',[(All vstrs
                             ,JS.withData "presentatorChange" (fromJust $ M.lookup pres (users corr)))
-                           ,(User pres, JS.withData "becamePresentator" (R.word rm'))] ++ rChange)
+                           ,(User pres, JS.withData "becamePresentator" (R.word rm'))
+                           ,(All $ M.keys $ M.delete (R.presentator oldRoom) (R.score oldRoom),JS.withData "wordWas" (R.word oldRoom))] ++ rChange)
   where
     foundRoom = M.lookup rm (rooms corr)
+    oldRoom = fromJust foundRoom
     someGuessedRight = R.hasGuessedRight (fromJust foundRoom)
     noCorrRoom = isNothing $ foundRoom >>= M.lookup uid . R.score
     res = R.setNewPresentator (fromJust foundRoom) False now

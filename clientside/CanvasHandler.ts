@@ -59,10 +59,10 @@ class CanvasHandler{
 	this.canvas.mouseover(function(e){
 	    if(self.paintingTool == "pencil" || self.paintingTool == "erase"){
 		var size = self.paintingTool == "pencil" ? self.penSize : self.eraserSize;
-		self.radius = (size+2)/2;
+		self.radius = (size+4)/2;
 		self.cursorStalker.attr({
-		    width: size+2,
-		    height:size+2
+		    width: size+4,
+		    height:size+4
 		}).children().attr({
 		    cx: self.radius,
 		    cy: self.radius,
@@ -280,12 +280,13 @@ class CanvasHandler{
         var off = this.getLeftAndTopOffset(this.canvas.get(0));
         var x = data.pageX-off.left, y = data.pageY-off.top;
 	
-	if(this.paintingTool == "pencil"){
-	    if(this.poss.length == 2){
+	if((this.paintingTool == "pencil" || this.paintingTool == "erase") && this.poss.length == 2){
 		this.ctx.beginPath();
-		this.ctx.arc(x, y, this.penSize/2, 0, 2 * Math.PI);
+		var size = this.paintingTool == "pencil" ? this.penSize : this.eraserSize;
+		this.ctx.arc(x, y, size/2, 0, 2 * Math.PI);
 		this.ctx.fill();
-	    }
+	}
+	if(this.paintingTool == "pencil"){
             this.onDraw({
 		tool:"pencil",
 		poss:this.poss,

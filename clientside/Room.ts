@@ -57,7 +57,7 @@ class Room implements PageLoader{
 	var self = this;
 	return function(data : ServerResponse){
 	    if(data.error){
-		self.chatMessages.append(data.error + "</br>");
+		self.chatReceived("@Server",data.error);
 		return;
 	    }
 	    if(data.cmd == "draw"){
@@ -126,6 +126,8 @@ class Room implements PageLoader{
 		self.guessedCorrect(data.data.user,data.data.score);
 	    }else if(data.cmd == "leaveRoom"){
 		loadPage("corridor");
+	    }else if(data.cmd == "wordWas"){
+		self.chatReceived("@Server","The word was " + data.data + ".");
 	    }
 	}
     }
@@ -377,6 +379,7 @@ class Room implements PageLoader{
 	var se = sender == username ? "Me" : sender;
 	var chat : string = "<span class='sender'>" + sender + ":</span> " + message + "<br/>";
 	this.chatMessages.append(chat);
+	this.chatMessages.prop("scrollTop",this.chatMessages.prop("scrollHeight"));
     }
 
     addUser(user,score){
