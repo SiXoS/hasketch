@@ -135,6 +135,7 @@ class Room implements PageLoader{
     
     onLoad(loadedRoom : RoomInfo){
 	this.name = loadedRoom.name;
+        $("#title").html("Room " + this.name);
 	this.timer = loadedRoom.timer;
 	this.finTimer = loadedRoom.finTimer;
 	this.roundsField = $("#round");
@@ -150,7 +151,7 @@ class Room implements PageLoader{
 	    }
 	});
 	var db = $("#drawboard");
-	db.attr("width","" + (db.parent().innerWidth()-10));
+	db.attr("width","" + (db.parent().innerWidth()-20));
 	var dBarHeights = 0;
 	$(".drawBar").each(function(){
 	    dBarHeights += $(this).outerHeight(true);
@@ -377,7 +378,7 @@ class Room implements PageLoader{
 
     chatReceived(sender : string, message : string){
 	var se = sender == username ? "Me" : sender;
-	var chat : string = "<span class='sender'>" + sender + ":</span> " + message + "<br/>";
+	var chat : string = "<div class='chatMessage'><span class='sender'>" + sender + ":</span> " + message + "<br/></div>";
 	this.chatMessages.append(chat);
 	this.chatMessages.prop("scrollTop",this.chatMessages.prop("scrollHeight"));
     }

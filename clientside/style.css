@@ -71,6 +71,7 @@ button:hover, button:focus{
     background:#eee;
     cursor:pointer;
     box-shadow:0 0 2px 0 #777;
+    color:black;
 }
 
 button:active{
@@ -87,6 +88,13 @@ li{
     float:right;
     background:white;
     margin:10px;
+}
+
+
+canvas {
+    background:white;
+    margin:0 10px 10px 10px;
+    border:1px solid #ccc;
 }
 
 .button {
@@ -108,8 +116,11 @@ li{
 
 .drawBar{
     margin:0 10px;
-    border-bottom:1px solid #ccc;
     padding:10px 0;
+}
+
+.drawBar:first-child{
+    border-bottom:1px solid #ccc;
 }
 
 #word{
@@ -121,10 +132,8 @@ li{
     margin:2px;
 }
 
-canvas{
-    background:white;
-    margin:10px 0;
-    cursor:default;
+#toolbar button:not(:hover){
+    color:#eee;
 }
 
 #toolbar {
@@ -135,6 +144,7 @@ canvas{
     min-height:30px;
     position:absolute;
     z-index:1;
+    color:#eee;
 }
 
 #backButtonContainer{

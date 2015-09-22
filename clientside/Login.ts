@@ -20,6 +20,7 @@ class Login implements DialogLoader{
                 if(data.cmd == "setName"){
                     if(data.error){
 			this.pressed = false;
+                        $("#error").css("display","");
                         $("#error").html(data.error + "<br/>");
                     }else{
                         setUsername(self.requestedName);
@@ -42,7 +43,7 @@ class Login implements DialogLoader{
     login(){
 	var val = this.user.val();
         if(val.match(/^(\w|\d){4,12}$/i)){
-	    this.error.css("display:none;")
+	    this.error.css("display","none")
             this.sentRequest = true;
             this.requestedName = val;
             connection.send({cmd:"setName",data:val});
