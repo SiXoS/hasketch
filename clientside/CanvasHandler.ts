@@ -26,6 +26,8 @@ class CanvasHandler{
     private startPos;
     private cursorStalker : JQuery;
     private radius : number = 0;
+    private history : ImageData[] = [];
+    private redoHistory : ImageData[] = [];
     
     constructor(private canvas : JQuery,private presentator : string, onDraw : OnDraw){
 	this.onDraw = onDraw;
@@ -87,7 +89,9 @@ class CanvasHandler{
 	$(document).mouseup(function(e){self.canvasOnRelease(e);});
 
 	this.bucket = new PaintBucket(this.ctx);
-    }
+        this.storeHistory();        
+
+     }
 
     private sliderChange(value:number){
 	if(this.paintingTool == "pencil"){
@@ -152,29 +156,40 @@ class CanvasHandler{
      */
     drawPoints(points:number[],color:string,size:number){
 
-	this.ctx.fillStyle = this.ctx.strokeStyle = color;
+        this.ctx.fillStyle = this.ctx.strokeStyle = color;
 	this.ctx.lineWidth = size;
-
+        var minX : number = points[0],
+            minY : number = points[1],
+            maxX : number = points[0],
+            maxY : number = points[1];
 	if(points.length == 2){
 	    this.ctx.beginPath();
 	    this.ctx.arc(points[0], points[1], size/2, 0, 2 * Math.PI);
 	    this.ctx.fill();
-	    return;
-	}
-	
-	this.ctx.beginPath();
-	this.ctx.moveTo(points[0],points[1]);
 
-	for(var i = 2 ; i< points.length ; i+=2){
-	    this.ctx.lineTo(points[i],points[i+1]);
-	    this.ctx.stroke();
+	}else{
+	
 	    this.ctx.beginPath();
-	    this.ctx.moveTo(points[i],points[i+1]);
-	}
+	    this.ctx.moveTo(points[0],points[1]);
+
+	    for(var i = 2 ; i< points.length ; i+=2){
+                minX = Math.min(points[i],minX);
+                minY = Math.min(points[i+1],minY);
+                maxX = Math.max(points[i],maxX);
+                maxY = Math.max(points[i+1],maxY);
+	        this.ctx.lineTo(points[i],points[i+1]);
+	        this.ctx.stroke();
+	        this.ctx.beginPath();
+	        this.ctx.moveTo(points[i],points[i+1]);
+	    }
+
+        }
+        this.storeHistory();
 
     }
 
-    drawSquare(x1,y1,x2,y2,color){
+    drawSquare(x1,y1,x2,y2,color,storeHstry? : boolean){
+
 	this.ctx.fillStyle = this.ctx.strokeStyle = color;
 	
 	var x = Math.min(x1,x2);
@@ -183,9 +198,14 @@ class CanvasHandler{
 	var height = Math.abs(y1-y2);
 	
 	this.ctx.fillRect(x,y,width,height);
+  
+        if(typeof storeHstry == 'undefined' || storeHstry)
+            this.storeHistory();
+       
     }
 
-    drawEllipse(x1, y1, x2, y2, color) {
+    drawEllipse(x1, y1, x2, y2, color,storeHstry? : boolean) {
+
 	this.ctx.fillStyle = this.ctx.strokeStyle = color;
 
 	var x = Math.min(x1,x2);
@@ -210,6 +230,36 @@ class CanvasHandler{
 	ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
 	ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
 	ctx.fill();
+
+        if(typeof storeHstry == 'undefined' || storeHstry)
+            this.storeHistory();
+       
+    }
+
+    private somedo(from,to){
+        if(from.length < 1) return;
+        var curImg = from.pop();
+        if(to.length == 0)
+            to.push(curImg);
+        var draw = from[from.length-1];
+        to.push(draw);
+        this.ctx.putImageData(draw,0,0);
+    }
+
+    public undo(){
+        this.somedo(this.history,this.redoHistory);
+    }
+
+    public redo(){
+        this.somedo(this.redoHistory,this.history);
+    }
+
+    private storeHistory(){
+	var dat = this.ctx.getImageData(0,0,parseInt(this.canvas.attr("width")),parseInt(this.canvas.attr("height")));
+        if(this.history.length == 5)
+            this.history.shift();
+        this.history.push(dat);
+        this.redoHistory = [];
     }
 
     private storeCanvas(){
@@ -227,6 +277,7 @@ class CanvasHandler{
 
     pourBucket(x:number,y:number,r:number,g:number,b:number,tolerance:number){
 	this.bucket.pourBucket(x,y,r,g,b,tolerance);
+        this.storeHistory();
     }
 
     clear(){
@@ -234,6 +285,7 @@ class CanvasHandler{
 	this.ctx.fillStyle = "#FFFFFF";
 	this.ctx.fillRect(0,0,this.canvas.width(),this.canvas.height());
 	this.ctx.fillStyle = prevFillStyle;
+        this.storeHistory();
     }
     
     private canvasOnClick(data){
@@ -242,7 +294,6 @@ class CanvasHandler{
         var off = this.getLeftAndTopOffset(this.canvas.get(0));
         var x = data.pageX-off.left, y = data.pageY-off.top;
 	if(this.paintingTool == "pencil" || this.paintingTool == "erase"){
-	    this.storeCanvas();
 	    this.pressed = true;
 	    this.poss = [x, y];
 	    if(this.paintingTool == "erase"){
@@ -287,13 +338,17 @@ class CanvasHandler{
 		this.ctx.fill();
 	}
 	if(this.paintingTool == "pencil"){
+            var s = this.penSize;
+            this.storeHistory();
             this.onDraw({
 		tool:"pencil",
 		poss:this.poss,
 		color:this.color.toHexString(),
-		size:this.penSize,
+		size:s,
 		resolution:{w:this.canvas.attr("width"),h:this.canvas.attr("height")}});
 	}else if(this.paintingTool == "erase"){
+            var s = this.eraserSize;
+            this.storeHistory();
             this.onDraw({
 		tool:"pencil",
 		poss:this.poss,
@@ -301,10 +356,12 @@ class CanvasHandler{
 		size:this.eraserSize,
 		resolution:{w:this.canvas.attr("width"),h:this.canvas.attr("height")}});
 	}else if(this.paintingTool == "circle" || this.paintingTool == "square"){
+            var sx = this.startPos.x, sy = this.startPos.y;
+            this.storeHistory();
 	    this.onDraw({
 		tool:this.paintingTool,
 		color:this.color.toHexString(),
-		pos:{sx:this.startPos.x,sy:this.startPos.y,ex:x,ey:y},
+		pos:{sx:sx,sy:sy,ex:x,ey:y},
 		resolution:{w:this.canvas.attr("width"),h:this.canvas.attr("height")}});
 	}
     }
@@ -336,9 +393,9 @@ class CanvasHandler{
 	    sx = this.startPos.x;
 	    sy = this.startPos.y;
 	    if(this.paintingTool == "circle"){
-		this.drawEllipse(sx,sy,x,y,this.color.toHexString());
+		this.drawEllipse(sx,sy,x,y,this.color.toHexString(),false);
 	    }else{
-		this.drawSquare(sx,sy,x,y,this.color.toHexString());
+		this.drawSquare(sx,sy,x,y,this.color.toHexString(),false);
 	    }
 	}
     }

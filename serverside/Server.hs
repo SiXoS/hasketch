@@ -228,7 +228,7 @@ newPresentator uid rm now skip corr
     pres = R.presentator rm'
     vstrs = M.keys $ M.delete pres $ R.score rm'
     corr' = corr{rooms = M.insert rm rm' (rooms corr)}
-    rChange = if happening == R.RoundChange then [(All vstrs,JS.ack "roundChange")] else []
+    rChange = if happening == R.RoundChange then [(All $ pres:vstrs,JS.ack "roundChange")] else []
 
 joinRoom :: Int -> JS.JoinRoom -> POSIXTime ->  ServerErr Value
 joinRoom uid (JS.JoinRoom rm pass) now corr
