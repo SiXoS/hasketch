@@ -30,7 +30,7 @@ class Corridor implements PageLoader{
         var self = this;
         return function(data : ServerResponse){
 	    if(data.error && data.cmd != "setName" && data.cmd != "createRoom"){
-		self.chat.append(data.error + "<br/>");
+		self.addMessage("@Server",data.error);
             }else if(data.cmd == "enterCorridor"){
                 
                 for(var i = 0; i < data.data.length ; i++){

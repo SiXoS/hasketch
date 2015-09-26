@@ -67,7 +67,13 @@ class Room implements PageLoader{
 		    if(data.data.tool == "trash"){
 			self.canvasHandler.clear();
 			return;
-		    }
+		    }else if(data.data.tool == "undo"){
+                        self.canvasHandler.undo();
+                        return;
+                    }else if(data.data.tool == "redo"){
+                        self.canvasHandler.redo();
+                        return;
+                    }
 		    var tool = data.data.tool;
 		    var res = data.data.resolution;
 		    var scale = self.canvasHandler.getScale(res.w,res.h)
@@ -170,13 +176,18 @@ class Room implements PageLoader{
 	this.chatField = chatField;
 	this.paintingTool = "pencil";
 	$("#toolPicker > img.button").click(function(){
+            if(self.presentator != username) return;
 	    var tool = $(this).attr("alt");
 	    if(tool == "trash"){
-		if(self.presentator == username){
-		    self.canvasHandler.clear();
-		    connection.send({cmd:"draw",data:{tool:"trash"},room:self.name});
-		}
-	    }else{
+		self.canvasHandler.clear();
+		connection.send({cmd:"draw",data:{tool:"trash"},room:self.name});
+	    }else if(tool == "undo"){
+                self.canvasHandler.undo();
+                connection.send({cmd:"draw",data:{tool:"undo"},room:self.name});
+            }else if(tool == "redo"){
+                self.canvasHandler.redo();
+                connection.send({cmd:"draw",data:{tool:"redo"},room:self.name});
+            }else{
 		$("#toolPicker > img.button").removeClass("hover");
 		$(this).addClass("hover");
 		self.canvasHandler.setTool(tool);
@@ -336,10 +347,9 @@ class Room implements PageLoader{
 	var incScore = this.hasGuessedRight == 0 ? 4 : 2;
 	presScore.html(parseInt(presScore.html())+incScore + "");
 	if(user == username){
-	    this.chatMessages.append("You guessed correct!<br/>");
+	    this.chatReceived("@Server","You guessed correct!");
 	}else{
-	    this.chatMessages.append("<span class='sender'>" + user + "</span>" +
-				     " guessed correct.<br/>");
+	    this.chatReceived("@Server", user + " guessed correct.");
 	}
 	if(this.hasGuessedRight+1 == this.users.length-1){
 	    if(this.presentator == username)

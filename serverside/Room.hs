@@ -88,7 +88,7 @@ setNewWord rm force now
     since = if hasGuessedRight rm then guessedRightAt rm else newWordSet rm
     tLength = if hasGuessedRight rm then finTimerLength rm else timerLength rm
     newWord = (words rm) !! fst (randomR (0,length (words rm) - 1) (getGenFromTime now))
-    newRoom = rm{gameEnded = False, word = newWord, newWordSet = now
+    newRoom = rm{gameEnded = False, word = newWord, newWordSet = now, words = filter (/= newWord) $ words rm
                 ,guessedRight = S.empty,hasGuessedRight = False}
 
 data PresentatorResponse = Normal | GameEnd | RoundChange
@@ -99,16 +99,19 @@ setNewPresentator rm force now
   | noWord = Nothing
   | isJust user = Just (Normal, rm'{presentator = fromJust user
                                    ,hasDrawn = S.insert (fromJust user) (hasDrawn rm')
-                                   ,nextPresentator = np+1})
+                                   ,nextPresentator = np+1
+                                   ,hintsGiven = 0})
   | round rm == maxRounds rm = Just (GameEnd, rm'{round = 1
                                                  ,hasDrawn = S.empty
                                                  ,gameEnded = True
                                                  ,score = M.map (const 0) (score rm')
-                                                 ,nextPresentator = newPresI})
+                                                 ,nextPresentator = newPresI
+                                                 ,hintsGiven = 0})
   | otherwise = Just $ (RoundChange, rm'{round = round rm'+1
                                         ,hasDrawn = S.insert newPres S.empty
                                         ,presentator = newPres
-                                        ,nextPresentator = newPresI + 1})
+                                        ,nextPresentator = newPresI + 1
+                                        ,hintsGiven = 0})
   where
     mrm = setNewWord rm force now
     rm' = fromJust mrm
