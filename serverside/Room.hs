@@ -158,22 +158,23 @@ guess :: String -> Int -> POSIXTime -> Room -> GuessResponse
 guess wrd uid now rm
   | now-since > tLength = Wrong
   | word rm == wrd = Correct (uscre,rm{score = M.adjust ((+)presscre) (presentator rm) $ M.insert uid uscre $ score rm
-                                   ,guessedRight = S.insert uid $ guessedRight rm})
+                                   ,guessedRight = S.insert uid $ guessedRight rm, guessedRightAt = gra, hasGuessedRight = True})
   | almostCorrect = Almost
   | otherwise = Wrong
   where
+    gra = if hasGuessedRight rm then guessedRightAt rm else now
     since = if hasGuessedRight rm then guessedRightAt rm else newWordSet rm
     tLength = realToFrac (if hasGuessedRight rm then finTimerLength rm else timerLength rm)
     presscre = if S.size (guessedRight rm) == 0 then 4 else 2
     uscre = M.size (score rm) - S.size (guessedRight rm) + score rm M.! uid
-    almostCorrect = seqAlign wrd (word rm) <= length wrd `div` 3
+    almostCorrect = seqAlign wrd (word rm) <= max (length wrd) (length $ word rm) `div` 3
 
 seqAlign :: String -> String -> Int
 seqAlign [] bs = length bs * gapPenalty
 seqAlign as [] = length as * gapPenalty
 seqAlign (a:as) (b:bs) = minimum [matchPenalty a b + seqAlign as bs, gapPenalty + seqAlign (a:as) bs, gapPenalty + seqAlign as (b:bs)]
 
-gapPenalty = 2
+gapPenalty = 1
 
 vowels = "aeoiyåäö"
 
@@ -183,7 +184,7 @@ matchPenalty a b | a==b = sameCharPenalty
            | otherwise = differentTypePenalty
   where
     sameCharPenalty = 0
-    differentTypePenalty = 2
+    differentTypePenalty = 1
     sameTypePenalty = 1
 
 -- | Gets a generator based on the microsecond of the timestamp

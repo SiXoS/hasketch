@@ -110,8 +110,10 @@ class Room implements PageLoader{
 		}else{
 		    self.wordField.html("<br/>" + data.data);
 		}
-		var presS = $("li#u-" + self.presentator).find(".score");
-		presS.html("" + (parseInt(presS.html()) - 1));
+                for(var i = 0; i<self.users.length; i++)
+                    if(self.users[i].user == self.presentator)
+                        self.users[i].score--;
+		self.updateUsers();
 	    }else if(data.cmd == "newUser"){
 		self.addUser(data.data,0);
 	    }else if(data.cmd == "presentatorChange"){
@@ -356,10 +358,14 @@ class Room implements PageLoader{
     }
 
     guessedCorrect(user:string,score:number){
-	this.userList.find("#u-" + user + ">.score").html(" " + score);
-	var presScore = this.userList.find("#u-" + this.presentator+">.score");
 	var incScore = this.hasGuessedRight == 0 ? 4 : 2;
-	presScore.html(parseInt(presScore.html())+incScore + "");
+        for(var i = 0; i<this.users.length; i++){
+            if(this.users[i].user == this.presentator)
+                this.users[i].score += incScore;
+            else if(this.users[i].user == user)
+                this.users[i].score = score;
+        }
+        this.updateUsers();
 	if(user == username){
 	    this.chatReceived("@Server","You guessed correct!");
 	}else{
