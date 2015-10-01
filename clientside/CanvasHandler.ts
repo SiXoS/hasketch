@@ -148,6 +148,9 @@ class CanvasHandler{
 	if(this.presentator == username && this.pressed)
 	    this.pressed = false;
 	this.presentator = presentator;
+        this.history = [];
+        this.redoHistory = [];
+        this.storeHistory();
     }
 
     /**
@@ -237,21 +240,22 @@ class CanvasHandler{
     }
 
     private somedo(from,to){
-        if(from.length < 1) return;
+        if(from.length < 2) return false;
         var curImg = from.pop();
         if(to.length == 0)
             to.push(curImg);
         var draw = from[from.length-1];
         to.push(draw);
         this.ctx.putImageData(draw,0,0);
+        return from.length > 1;
     }
 
     public undo(){
-        this.somedo(this.history,this.redoHistory);
+        return this.somedo(this.history,this.redoHistory);
     }
 
     public redo(){
-        this.somedo(this.redoHistory,this.history);
+        return this.somedo(this.redoHistory,this.history);
     }
 
     private storeHistory(){

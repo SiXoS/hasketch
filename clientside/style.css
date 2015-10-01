@@ -108,6 +108,12 @@ canvas {
     cursor:pointer;
 }
 
+.button.disabled {
+    border-color:#aaa !important;
+    background:#eee !important;
+    cursor: default !important;
+}
+
 #loader 
 { fill: #0088cc }
 

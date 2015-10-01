@@ -26,6 +26,7 @@ class Room implements PageLoader{
     private round : number;
     private maxRound : number;
     private name : string;
+    private ctrlDown : boolean = false;
     
     getTitle(){ return "Room";}
     getBackButton(){
@@ -117,7 +118,6 @@ class Room implements PageLoader{
 		self.clearTimers();
 		self.setPresentator(data.data);
 		self.drawBlue(0);
-		self.canvasHandler.clear();
 	    }else if(data.cmd == "userLeave"){
 		self.removeUser(data.data);
 	    }else if(data.cmd == "chat"){
@@ -127,7 +127,6 @@ class Room implements PageLoader{
 		self.clearTimers();
 		self.becamePresentator(data.data);
 		self.drawBlue(0);
-		self.canvasHandler.clear();
 	    }else if(data.cmd == "guessedCorrect"){
 		self.guessedCorrect(data.data.user,data.data.score);
 	    }else if(data.cmd == "leaveRoom"){
@@ -164,6 +163,15 @@ class Room implements PageLoader{
 	});
 	db.attr("height","" + (db.parent().innerHeight()-dBarHeights-20));
 	var self = this;
+        $(document).keydown(function(e){
+            if(e.which == 17)
+                self.ctrlDown = true;
+            else if(self.ctrlDown && e.which == 90)
+                $("#toolPicker .button[alt='undo']").click();
+            else if(self.ctrlDown && e.which == 89)
+                $("#toolPicker .button[alt='redo']").click();
+        });
+        $(document).keyup(function(e){ if(e.which == 17) self.ctrlDown = false; });
 	this.canvasHandler = new CanvasHandler($("#drawboard"),loadedRoom.presentator,function(d){ self.onDraw(d); });
 	this.border = $("#border");
 	this.loader = $("#loader");
@@ -176,18 +184,22 @@ class Room implements PageLoader{
 	this.chatField = chatField;
 	this.paintingTool = "pencil";
 	$("#toolPicker > img.button").click(function(){
-            if(self.presentator != username) return;
+            if(self.presentator != username || $(this).hasClass("disabled")) return;
 	    var tool = $(this).attr("alt");
+            if(tool == "undo" || tool == "redo"){
+                var other = tool == "undo" ? "redo" : "undo";
+                $("#toolPicker .button[alt='" + other + "']").removeClass("disabled");
+                if(tool == "undo" && !self.canvasHandler.undo() || tool == "redo" && !self.canvasHandler.redo())
+                    $(this).addClass("disabled");
+                connection.send({cmd:"draw",data:{tool:tool},room:self.name});
+                return;
+            }
+            $("#toolPicker .button[alt='undo']").removeClass("disabled");
+            $("#toolPicker .button[alt='redo']").addClass("disabled");
 	    if(tool == "trash"){
 		self.canvasHandler.clear();
 		connection.send({cmd:"draw",data:{tool:"trash"},room:self.name});
-	    }else if(tool == "undo"){
-                self.canvasHandler.undo();
-                connection.send({cmd:"draw",data:{tool:"undo"},room:self.name});
-            }else if(tool == "redo"){
-                self.canvasHandler.redo();
-                connection.send({cmd:"draw",data:{tool:"redo"},room:self.name});
-            }else{
+	    }else{
 		$("#toolPicker > img.button").removeClass("hover");
 		$(this).addClass("hover");
 		self.canvasHandler.setTool(tool);
@@ -245,6 +257,8 @@ class Room implements PageLoader{
     }
 
     onDraw(data){
+        $("#toolPicker .button[alt='undo']").removeClass("disabled");
+        $("#toolPicker .button[alt='redo']").addClass("disabled");
 	connection.send({cmd:"draw",room:this.name,data:data});
     }
 
@@ -382,6 +396,7 @@ class Room implements PageLoader{
 
     becamePresentator(word : string){
 	this.setPresentator(username);
+        $("#toolPicker .button:not([alt='redo'])").removeClass("disabled");
 	$("#skip,#hint").css("display","");
 	this.wordField.html("Your word is: " + word);
     }
@@ -415,7 +430,9 @@ class Room implements PageLoader{
     }
 
     setPresentator(user){
+        $("#toolPicker .button").addClass("disabled");
 	$("#skip,#hint").css("display","none");
+        this.canvasHandler.clear();
 	this.canvasHandler.setPresentator(user);
 	this.wordField.html("&nbsp;");
 	this.presentator = user;
