@@ -101,6 +101,8 @@ canvas {
     border: 3px solid #0088cc;
     border-radius: 18px;
     padding: 2px;
+    width:25px;
+    height:25px;
 }
 
 .button:hover, .button.hover{
