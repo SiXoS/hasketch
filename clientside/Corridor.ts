@@ -67,7 +67,10 @@ class Corridor implements PageLoader{
 
     addRoom(room : RoomElement){
         var self = this;
-        var roomElem = $("<div id='r-" + room.name + "' class='shadow roomElem'><div class='roomName'>" + room.name + "</div><div class='roomUsers'>" + room.users + "/" + room.maxUsers + "</div></div>");
+        var roomElem = $("<div id='r-" + room.name + "' class='shadow roomElem'><div class='roomName'>" + room.name + "</div></div>");
+        if(room.pass)
+            roomElem.append("<div class='roomLock'><img src='images/lock.png' /></div>");
+        roomElem.append("<div class='roomUsers'>" + room.users + "/" + room.maxUsers + "</div>");
         roomElem.click(function(){self.enterRoom(room.name,room.pass)});
         this.roomList.append(roomElem);
     }

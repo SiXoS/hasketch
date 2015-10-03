@@ -241,6 +241,11 @@ canvas {
     float:right;
 }
 
+.roomLock{
+    float:right;
+    padding:4px 2px 4px 10px;
+}
+
 .chatContainer{
     height:calc(100% - 200px);
 }
