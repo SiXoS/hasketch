@@ -104,9 +104,12 @@ class Corridor implements PageLoader{
 	$("#toSend").keydown(function(e){
 	    if(e.which == 13){
 		if(toSendInput.val().length > 0){
-		    self.addMessage("Me",toSendInput.val());
-		    connection.send({cmd:"chat",data:toSendInput.val()});
-		    toSendInput.val("");
+                    if(toSendInput.val().length < 150){
+		        self.addMessage("Me",toSendInput.val());
+		        connection.send({cmd:"chat",data:toSendInput.val()});
+                    }else
+                        self.addMessage("@Server","You can't send more than 150 characters");
+                    toSendInput.val("");
 		}
 	    }
 	});

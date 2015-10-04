@@ -209,8 +209,11 @@ class Room implements PageLoader{
 	});
 	$("#send").click(function(){
 	    if(chatField.val().length > 0){
-		self.chatReceived("Me",chatField.val());
-		connection.send({cmd:"chat",data:chatField.val(),room:self.name});
+                if(chatField.val().length < 150){
+		    self.chatReceived("Me",chatField.val());
+		    connection.send({cmd:"chat",data:chatField.val(),room:self.name});
+                }else
+                    self.chatReceived("@Server","You can't send more than 150 characters.");
 	    }
 	    chatField.val("");
 	});
@@ -362,8 +365,10 @@ class Room implements PageLoader{
         for(var i = 0; i<this.users.length; i++){
             if(this.users[i].user == this.presentator)
                 this.users[i].score += incScore;
-            else if(this.users[i].user == user)
+            else if(this.users[i].user == user){
                 this.users[i].score = score;
+                this.users[i].guessedRight = true;
+            }
         }
         this.updateUsers();
 	if(user == username){
@@ -391,12 +396,19 @@ class Room implements PageLoader{
 
     updateUsers(){
 	this.userList.html("");
+        this.users.sort(function(a,b){return b.score - a.score;});
 	for(var i:number = 0; i<this.users.length; i++){
 	    var user = this.users[i].user, score = this.users[i].score;
-	    this.userList.append("<li id='u-" + user + "'>" +
-				 "<div class='user'>" + user + "</div>" +
-				 "<div class='score'>" + score + "</div>" +
-				 "<br class='clearBoth'/></li>");
+            var guessedRightClass = this.users[i].guessedRight ? " class='guessedCorrect'" : "";
+	    var u = $("<li id='u-" + user + "'>" +
+		      "<div class='user'>" + user + "</div>" +
+		      "<div class='score'>" + score + "</div>" +
+		      "<br class='clearBoth'/></li>");
+            if(this.users[i].guessedRight)
+                u.addClass("guessedCorrect");
+            if(this.users[i].user == this.presentator)
+                u.addClass("presentator");
+            this.userList.append(u);
 	}
     }
 
@@ -442,8 +454,9 @@ class Room implements PageLoader{
 	this.canvasHandler.setPresentator(user);
 	this.wordField.html("&nbsp;");
 	this.presentator = user;
-	this.userList.children().removeClass("presentator");
-	this.userList.find("li#u-" + user).addClass("presentator");
+        for(var i=0 ; i<this.users.length ; i++)
+            this.users[i].guessedRight = false;
+        this.updateUsers();
 	this.hasGuessedRight = 0;
     }
 

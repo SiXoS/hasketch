@@ -21,6 +21,10 @@ body{
     height:100%;
     margin:0;
     font-family:'Open Sans',sans-serif;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */     
 }
 
 .no-close .ui-dialog-titlebar-close{
@@ -330,6 +334,10 @@ canvas {
 
 .users li.presentator{
     color:green;
+}
+
+.users li.guessedCorrect{
+    color:blue;
 }
 
 #round{

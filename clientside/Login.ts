@@ -42,7 +42,7 @@ class Login implements DialogLoader{
 
     login(){
 	var val = this.user.val();
-        if(val.match(/^(\w|\d){4,12}$/i)){
+        if(val.match(/^.{4,16}$/)){
 	    this.error.css("display","none")
             this.sentRequest = true;
             this.requestedName = val;

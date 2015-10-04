@@ -156,7 +156,7 @@ data GuessResponse = Wrong | Almost | Correct (Int,Room)
 
 guess :: String -> Int -> POSIXTime -> Room -> GuessResponse
 guess wrd uid now rm
-  | now-since > tLength = Wrong
+  | now-since > tLength || not mayBeCorrect = Wrong
   | word rm == wrd = Correct (uscre,rm{score = M.adjust ((+)presscre) (presentator rm) $ M.insert uid uscre $ score rm
                                    ,guessedRight = S.insert uid $ guessedRight rm, guessedRightAt = gra, hasGuessedRight = True})
   | almostCorrect = Almost
@@ -166,8 +166,9 @@ guess wrd uid now rm
     since = if hasGuessedRight rm then guessedRightAt rm else newWordSet rm
     tLength = realToFrac (if hasGuessedRight rm then finTimerLength rm else timerLength rm)
     presscre = if S.size (guessedRight rm) == 0 then 4 else 2
+    mayBeCorrect = length wrd < length (word rm) * 2
     uscre = M.size (score rm) - S.size (guessedRight rm) + score rm M.! uid
-    almostCorrect = seqAlign wrd (word rm) <= max (length wrd) (length $ word rm) `div` 3
+    almostCorrect = seqAlign wrd (word rm) <= max (length wrd) (length $ word rm) `div` 2
 
 seqAlign :: String -> String -> Int
 seqAlign [] bs = length bs * gapPenalty

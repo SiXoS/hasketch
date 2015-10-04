@@ -95,7 +95,7 @@ handleRequest' corr cm@(JS.ClientMessage cmd room dat) uid = case cmd of
                                       Error e -> throwError e) room
     dt <- checkExists dat
     now <- liftIO getPOSIXTime
-    fromErr' cmd $ chat uid rm dt now corr
+    length dt `seq` fromErr' cmd (chat uid rm dt now corr)
   "draw" -> do
     rm <- checkExists room
     dt <- checkExists dat
@@ -143,14 +143,13 @@ enterCorridor client serv = (serv{inCorridor = S.insert client (inCorridor serv)
     roomToSum room = JS.RoomSum (R.name room) (R.maxUsers room) (M.size $ R.score room) (isJust $ R.password room)  
 
 setName :: Int -> String -> ServerErr Value
-setName usr uName' corr 
+setName usr uName corr 
   | M.member usr usrs = Bad "You are already logged in"
   | hasValue usrs uName = Bad "Username taken"
-  | not matchesName = Bad "Invalid username"
+  | not matchesName = Bad "The username can only contain letters, digits, '-', '_' and must be between 4 and 16 characters."
   | otherwise = Ok (corr{users = M.insert usr uName usrs},[(Sender,JS.ack "setName")])
   where
-    uName = sanitizeHTML uName'
-    matchesName = match (makeRegexOpts compCaseless execBlank "^(\\w|\\d){4,12}$") uName :: Bool
+    matchesName = match (makeRegexOpts compUTF8 execBlank "^(\\pL|\\d|-|_){4,16}$") uName :: Bool
     usrNameExists = any (strCaseComp uName) $ M.elems $ users corr
     usrs = users corr
 
@@ -163,14 +162,15 @@ createRoom uid (JS.CreateRoom nme timer maxUsr finTimer pass maxRounds wordList)
   | timer <= 5 || finTimer <= 5 || timer > 600 || finTimer > 600 = Bad "The timers must be between 6 and 600 seconds."
   | maxUsr <= 1 || maxUsr > 50 = Bad "The maximum number of users must be between 2 and 50."
   | maxRounds <= 0 || maxRounds > 50 = Bad "The number of rounds must be between 1 and 50."
-  | length nme' <= 3 || length nme' > 50 = Bad "The name must be between 4 and 50 characters."
+  | length nme <= 3 || length nme > 50 = Bad "The name must be between 4 and 50 characters."
+  | not roomFormatOk = Bad "The room name can only contain letters, numbers, ' ', '_' and '-'."
   | isJust pass && (length (fromJust pass) <= 4 || length (fromJust pass) > 50) = Bad "The password must be between 5 and 50 characters." 
-  | otherwise = Ok (corr{rooms = M.insert nme' room (rooms corr),inCorridor = corridorers}
+  | otherwise = Ok (corr{rooms = M.insert nme room (rooms corr),inCorridor = corridorers}
                    ,[(Sender,JS.ack "createRoom"),(All $ S.toList corridorers, JS.withData "newRoom" roomSum)])
   where
-    nme' = sanitizeHTML nme
     roomExists = any (strCaseComp nme) $ M.keys $ rooms corr
     troom = R.newRoom nme timer maxUsr finTimer pass maxRounds wordList wrds
+    roomFormatOk = match (makeRegexOpts compUTF8 execBlank "^(\\pL|\\d|-|_| ){3,50}$") nme :: Bool
     (R.Norm room) = R.welcome uid pass troom
     corridorers = S.delete uid $ inCorridor corr
     roomSum = JS.RoomSum nme maxUsr 1 (isJust pass)
@@ -222,7 +222,7 @@ newPresentator uid rm now skip corr
     oldRoom = fromJust foundRoom
     someGuessedRight = R.hasGuessedRight (fromJust foundRoom)
     noCorrRoom = isNothing $ foundRoom >>= M.lookup uid . R.score
-    res = R.setNewPresentator (fromJust foundRoom) False now
+    res = R.setNewPresentator (fromJust foundRoom) skip now
     noNewPres = isNothing res
     (happening,rm') = fromJust res
     pres = R.presentator rm'
@@ -288,6 +288,7 @@ leaveRoom uid rm now corr
 
 chat :: Int -> Maybe String -> String -> POSIXTime -> ServerErr Value
 chat uid rm txt' now corr
+  | txtTooLong = None
   | rm == Nothing = if S.member uid $ inCorridor corr
                     then Ok (corr,[(All $ S.toList $ S.delete uid $ inCorridor corr ,JS.chat uName txt)])
                     else None
@@ -298,6 +299,7 @@ chat uid rm txt' now corr
   | R.presentator trm' /= uid && almost = Ok (corr,[(Sender, JS.error "chat" "You are close!")])
   | otherwise = Ok (corr,[(All $ M.keys $ M.delete uid $ R.score trm', JS.chat uName txt)])
   where
+    txtTooLong = length txt' >= 150
     txt = sanitizeHTML txt'
     uName = users corr M.! uid
     tmrm = M.lookup (fromJust rm) (rooms corr)
