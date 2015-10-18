@@ -202,28 +202,7 @@ class Room implements PageLoader{
 	chatField.css("width","calc(100% - " + $("#send").outerWidth() + "px)");
 	this.chatField = chatField;
 	this.paintingTool = "pencil";
-	$("#toolPicker > img.button").click(function(){
-            if(self.presentator != username || $(this).hasClass("disabled")) return;
-	    var tool = $(this).attr("alt");
-            if(tool == "undo" || tool == "redo"){
-                var other = tool == "undo" ? "redo" : "undo";
-                $("#toolPicker .button[alt='" + other + "']").removeClass("disabled");
-                if(tool == "undo" && !self.canvasHandler.undo() || tool == "redo" && !self.canvasHandler.redo())
-                    $(this).addClass("disabled");
-                connection.send({cmd:"draw",data:{tool:tool},room:self.name});
-                return;
-            }
-            $("#toolPicker .button[alt='undo']").removeClass("disabled");
-            $("#toolPicker .button[alt='redo']").addClass("disabled");
-	    if(tool == "trash"){
-		self.canvasHandler.clear();
-		connection.send({cmd:"draw",data:{tool:"trash"},room:self.name});
-	    }else{
-		$("#toolPicker > img.button").removeClass("hover");
-		$(this).addClass("hover");
-		self.canvasHandler.setTool(tool);
-	    }
-	});
+	$("#toolPicker > img.button").click(function(){self.chooseTool(this);});
 	$("#send").click(function(){
 	    if(chatField.val().length > 0){
                 if(chatField.val().length < 150){
@@ -276,6 +255,43 @@ class Room implements PageLoader{
 	    });
 	});
 
+    }
+
+    chooseTool(toolElem : HTMLElement){
+        if(this.presentator != username || $(toolElem).hasClass("disabled")) return;
+        var tool = $(toolElem).attr("alt");
+        if(tool == "undo" || tool == "redo"){
+            var other = tool == "undo" ? "redo" : "undo";
+            $("#toolPicker .button[alt='" + other + "']").removeClass("disabled");
+            if(tool == "undo" && !this.canvasHandler.undo() || tool == "redo" && !this.canvasHandler.redo())
+                $(toolElem).addClass("disabled");
+            connection.send({cmd:"draw",data:{tool:tool},room:this.name});
+            return;
+        }
+        $("#toolPicker .button[alt='undo']").removeClass("disabled");
+        $("#toolPicker .button[alt='redo']").addClass("disabled");
+        if(tool == "trash"){
+            var dia = $("#dialog");
+            dia.html("Are you sure you want to delete the entire picture?");
+            var self = this;
+            dia.dialog({
+                width:700,
+                modal:true,
+                title:"Confirm clear picture",
+                buttons:{
+                    "Clear picture":function(){
+                        self.canvasHandler.clear();
+                        connection.send({cmd:"draw",data:{tool:"trash"},room:self.name});
+                        dia.dialog("close");
+                    },
+                    "Cancel":function(){ dia.dialog("close"); }
+                }
+            });
+        }else{
+            $("#toolPicker > img.button").removeClass("hover");
+            $(toolElem).addClass("hover");
+            this.canvasHandler.setTool(tool);
+        }
     }
 
     onDraw(data){
@@ -454,7 +470,14 @@ class Room implements PageLoader{
     }
 
     removeUser(user){
-	var i : number = this.users.indexOf(user);
+	var i : number = -1;
+	for(var j : number = 0; j<this.users.length ; j++){
+	    if(this.users[j].user == user){
+                i = j;
+                break;
+            }
+	}
+        if(i == -1) return;
 	this.users.splice(i,1);
 	if(this.users.length == 1){
 	    if(this.pieTimer){
