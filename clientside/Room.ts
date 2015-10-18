@@ -449,6 +449,7 @@ class Room implements PageLoader{
 	this.setPresentator(username);
         this.colorPicker.spectrum("enable");
         this.colorPicker.spectrum("set","black");
+        this.canvasHandler.setColor(tinycolor("black"));
         $("#toolPicker .button:not([alt='redo'])").removeClass("disabled");
 	$("#skip,#hint").css("display","");
 	this.wordField.html("Your word is: " + word);

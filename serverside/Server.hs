@@ -296,7 +296,8 @@ chat uid rm txt' now corr
   | R.presentator trm' /= uid && gCorrect = Ok (corr{rooms = M.insert (R.name rm') rm' $ rooms corr}
                                               ,[(All $ M.keys $ R.score rm'
                                                 ,JS.withData "guessedCorrect" $ JS.CorrectGuess uName scr)])
-  | R.presentator trm' /= uid && almost = Ok (corr,[(Sender, JS.error "chat" "You are close!")])
+  | R.presentator trm' /= uid && almost = Ok (corr,[(Sender, JS.error "chat" "You are close!"),
+                                                     (User $ R.presentator trm', JS.error "chat" (uName ++ " was close with " ++ txt ++ "."))])
   | otherwise = Ok (corr,[(All $ M.keys $ M.delete uid $ R.score trm', JS.chat uName txt)])
   where
     txtTooLong = length txt' >= 150
