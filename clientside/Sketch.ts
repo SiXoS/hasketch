@@ -29,6 +29,9 @@ $(function(){
     fButton = $("#forwardButtonContainer");
     dialogContainer = $("#dialog");
     title = $("#title");
+    $(window).bind('beforeunload', function(){
+        return 'Are you sure you want to leave? All your points will be lost.';
+    });
     
 });
 

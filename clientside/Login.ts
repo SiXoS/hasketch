@@ -51,7 +51,7 @@ class Login implements DialogLoader{
 	    this.pressed = false;
 	    this.error.css("display","");
 	    this.error.css({"margin-bottom":"15px",padding:"3px"});
-            this.error.html("The username has to be between 4 and 12 characters inclusive and may only contain digits and numbers.");
+            this.error.html("The username can only contain letters, digits, '-', '_' and must be between 4 and 16 characters inclusive.");
         }
     }
 

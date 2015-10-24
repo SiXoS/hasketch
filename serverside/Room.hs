@@ -166,27 +166,47 @@ guess wrd uid now rm
     since = if hasGuessedRight rm then guessedRightAt rm else newWordSet rm
     tLength = realToFrac (if hasGuessedRight rm then finTimerLength rm else timerLength rm)
     presscre = if S.size (guessedRight rm) == 0 then 4 else 2
-    mayBeCorrect = length wrd < length (word rm) * 2
+    mayBeCorrect = length wrd < length (word rm) * 2 && ' ' `notElem` wrd 
     uscre = M.size (score rm) - S.size (guessedRight rm) + score rm M.! uid
     almostCorrect = seqAlign wrd (word rm) <= max (length wrd) (length $ word rm) `div` 2
 
 seqAlign :: String -> String -> Int
-seqAlign [] bs = length bs * gapPenalty
-seqAlign as [] = length as * gapPenalty
-seqAlign (a:as) (b:bs) = minimum [matchPenalty a b + seqAlign as bs, gapPenalty + seqAlign (a:as) bs, gapPenalty + seqAlign as (b:bs)]
+seqAlign as bs = length as `seq` (length bs `seq` (fst $ seqAlign' as bs 0 0 $ take (length as +1) $ repeat $ take (length bs +1) $ repeat (-1)))
 
-gapPenalty = 1
+seqAlign' :: String -> String -> Int -> Int -> [[Int]] -> (Int,[[Int]])
+seqAlign' as bs ia ib mtrx
+  | mtrx !! ia !! ib /= -1 = (mtrx !! ia !! ib,mtrx)
+  | otherwise = let (num,mtrx') = seqAlign'' as bs ia ib mtrx in
+                   num `seq` let mtrx'' = insert num ia ib mtrx' in
+                      mtrx'' `seq` (num,mtrx'')
 
-vowels = "aeoiyåäö"
-
-matchPenalty :: Char -> Char -> Int
-matchPenalty a b | a==b = sameCharPenalty
-           | (a `elem` vowels) == (b `elem` vowels) = sameTypePenalty
-           | otherwise = differentTypePenalty
+insert :: Int -> Int -> Int -> [[Int]] -> [[Int]]
+insert n x y mtrx = take x mtrx ++ [subInsert] ++ drop (x+1) mtrx
   where
+    xrow = mtrx !! x
+    subInsert = take y xrow ++ [n] ++ drop (y+1) xrow
+
+seqAlign'' :: String -> String -> Int -> Int -> [[Int]] -> (Int,[[Int]])
+seqAlign'' [] bs ia ib mtrx = (length bs * gapPenalty,mtrx)
+seqAlign'' as [] ia ib mtrx = (length as * gapPenalty,mtrx)
+seqAlign'' (a:as) (b:bs) ia ib mtrx = (minimum list,mtrx''') 
+  where
+    (matched,mtrx') = seqAlign' as bs (ia+1) (ib+1) mtrx
+    matchedP = matchPenalty a b
+    (gapInB,mtrx'') = seqAlign' (a:as) bs ia (ib+1)  mtrx'
+    (gapInA,mtrx''') = seqAlign' as (b:bs) (ia+1) ib mtrx''
+    list = [matchedP + matched, gapPenalty + gapInB, gapPenalty + gapInA]
     sameCharPenalty = 0
     differentTypePenalty = 1
     sameTypePenalty = 1
+    matchPenalty :: Char -> Char -> Int
+    matchPenalty a b | a==b = sameCharPenalty
+                     | (a `elem` vowels) == (b `elem` vowels) = sameTypePenalty
+                     | otherwise = differentTypePenalty
+
+gapPenalty = 1
+
+vowels = "aeoiyeao"
 
 -- | Gets a generator based on the microsecond of the timestamp
 getGenFromTime :: POSIXTime -> StdGen

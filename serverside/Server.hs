@@ -146,7 +146,7 @@ setName :: Int -> String -> ServerErr Value
 setName usr uName corr 
   | M.member usr usrs = Bad "You are already logged in"
   | hasValue usrs uName = Bad "Username taken"
-  | not matchesName = Bad "The username can only contain letters, digits, '-', '_' and must be between 4 and 16 characters."
+  | not matchesName = Bad "The username can only contain letters, digits, '-', '_' and must be between 4 and 16 characters inclusive."
   | otherwise = Ok (corr{users = M.insert usr uName usrs},[(Sender,JS.ack "setName")])
   where
     matchesName = match (makeRegexOpts compUTF8 execBlank "^(\\pL|\\d|-|_){4,16}$") uName :: Bool
